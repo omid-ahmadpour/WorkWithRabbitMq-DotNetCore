@@ -8,23 +8,23 @@ namespace RabbitMq.Producer.Controllers
     [ApiController]
     public class ClientController : ControllerBase
     {
-        [HttpGet("Fanout")]
+        [HttpGet("fanout")]
         public void Fanout()
         {
-            var message = "omid; 28, ahmadpooromid@gmail.com, Fanout Exchange";
+            var message = "Fanout Exchange: omid; 28, ahmadpooromid@gmail.com";
 
-            SendMessage("", message);
+            SendMessage(ExchangeType.Fanout,"", message);
         }
 
-        [HttpGet("Direct")]
+        [HttpGet("direct")]
         public void Direct()
         {
-            var message = "This is a message for Direct Exchange.";
+            var message = "Direct Exchange: omid; 28, ahmadpooromid@gmail.com";
 
-            SendMessage("direct.routingKey", message);
+            SendMessage(ExchangeType.Direct,"direct.routingKey", message);
         }
 
-        private void SendMessage(string routingKey, string message)
+        private void SendMessage(string exchangeType,string routingKey, string message)
         {
             var factory = new ConnectionFactory();
             factory.Uri = new Uri("amqp://guest:guest@localhost:5672");
@@ -32,7 +32,7 @@ namespace RabbitMq.Producer.Controllers
             var connection = factory.CreateConnection();
             var channel = connection.CreateModel();
 
-            channel.ExchangeDeclare("TestAppExchange", ExchangeType.Direct, true);
+            channel.ExchangeDeclare("TestAppExchange", exchangeType, true);
 
             var bytes = System.Text.Encoding.UTF8.GetBytes(message);
             channel.BasicPublish("TestAppExchange", routingKey, null, bytes);
